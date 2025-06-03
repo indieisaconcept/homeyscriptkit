@@ -1,0 +1,71 @@
+{
+  "name": "homeyscriptkit",
+  "version": "1.0.0",
+  "description": "Extend your Homey's capabilities with custom HomeyScript automation scripts",
+  "main": "index.js",
+  "types": "types/homeyscript.d.ts",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "prelint": "npm run format",
+    "watch": "rolldown -c rolldown.config.ts --watch",
+    "build": "NODE_ENV=prod rolldown -c rolldown.config.ts",
+    "build-debug": "rolldown -c rolldown.config.ts",
+    "prebuild:common": "npm run lint && del-cli dist",
+    "prebuild": "npm run prebuild:common",
+    "prebuild-debug": "npm run prebuild:common",
+    "help": "rolldown --help",
+    "format": "prettier --write .",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/indieisaconcept/homeyscriptkit.git"
+  },
+  "keywords": [
+    "homey",
+    "homeyscript"
+  ],
+  "author": "indieisaconcept <me@indieisaconcept.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/indieisaconcept/homeyscriptkit/issues"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "npm run lint"
+  },
+  "gitHooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "homepage": "https://github.com/indieisaconcept/homeyscriptkit#readme",
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@eslint/json": "^0.12.0",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/lodash": "^4.14.202",
+    "@types/node": "22.15.29",
+    "@typescript-eslint/eslint-plugin": "8.33.1",
+    "@typescript-eslint/parser": "8.33.1",
+    "del-cli": "^6.0.0",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "10.1.5",
+    "eslint-plugin-prettier": "5.4.1",
+    "fast-glob": "3.3.3",
+    "globals": "^16.2.0",
+    "homey-api": "^3.11.3",
+    "lint-staged": "16.1.0",
+    "lodash": "^4.17.21",
+    "prettier": "3.5.3",
+    "rolldown": "^1.0.0-beta.10",
+    "rollup-plugin-swc3": "^0.12.1",
+    "tslib": "2.8.1",
+    "tsx": "^4.19.4",
+    "typescript": "5.8.3",
+    "typescript-eslint": "^8.33.1",
+    "vitest": "^3.2.2"
+  }
+}
