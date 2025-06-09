@@ -1,4 +1,4 @@
-import hsk, { type Event } from '../hsk';
+import hsk, { type Event } from '../../src/hsk';
 import { toggleHomeTheatre, toggleSubwoofer, toggleSurround } from './commands';
 import { SonosDeviceParams } from './types';
 
