@@ -4,11 +4,16 @@ import type { ConfigExport, RolldownOptions } from 'rolldown';
 import { minify } from 'rollup-plugin-swc3';
 
 const isProd = process.env.NODE_ENV === 'prod';
-const packages = glob.sync('packages/*/index.ts', { ignore: ['**/util.ts'] });
+const scriptDir = process.env.SCRIPT_DIR ?? 'packages';
+
+const packages = glob.sync(`${scriptDir}/*/index.{ts,js,min.js}`, {
+  ignore: ['**/util.ts'],
+});
+
 const filename = (path: string): string =>
   path
     .replace(/\//g, '.')
-    .replace(/^packages\./, 'homeyscript.')
+    .replace(new RegExp(`^${scriptDir}\\.`), 'homeyscript.')
     .replace('index.ts', isProd ? 'min.js' : 'js');
 
 const minifyPlugin = minify({

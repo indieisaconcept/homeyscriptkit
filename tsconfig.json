@@ -7,7 +7,7 @@
     "checkJs": false,
     "outDir": "./build",
     "strict": true,
-    "alwaysStrict": true, // Enabled for consistency
+    "alwaysStrict": true,
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -15,7 +15,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["./node_modules/@types", "./types"],
-    "types": [],
+    "types": ["node"],
+    "jsx": "react-jsx",
 
     // Additional options for better global protection
     "noImplicitAny": true,
@@ -26,7 +27,20 @@
     "noPropertyAccessFromIndexSignature": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "noImplicitOverride": true
+    "noImplicitOverride": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+
+    "paths": {
+      "@hsk": ["./src/hsk"],
+      "@hsk/*": ["./src/hsk/*"]
+    }
   },
-  "include": ["packages/**/*", "types/**/*"]
+  "include": [
+    "examples/**/*",
+    "packages/**/*",
+    "types/**/*",
+    "src/**/*",
+    "bin/**/*"
+  ]
 }

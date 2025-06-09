@@ -51,9 +51,32 @@ hsk://sonos/toggleSurround/livingRoom?ip=192.168.1.1
 
 #### 📦 Third-Party Package Bundling
 
-HomeyScriptKit's build system can bundle third-party npm packages directly into your scripts, allowing you to leverage the vast ecosystem of JavaScript libraries. This enables more powerful and feature-rich scripts by incorporating existing solutions for common tasks like data manipulation, HTTP requests, or specialized algorithms.
+HomeyScriptKit's build system can bundle third-party npm packages directly into
+your scripts, allowing you to leverage the vast ecosystem of JavaScript
+libraries. This enables more powerful and feature-rich scripts by incorporating
+existing solutions for common tasks like data manipulation, HTTP requests, or
+specialized algorithms.
 
-**Note:** Your mileage may vary depending on package complexity and dependencies. Always thoroughly test bundled packages in your HomeyScript environment to ensure compatibility and performance.
+**Note:** Your mileage may vary depending on package complexity and
+dependencies. Always thoroughly test bundled packages in your HomeyScript
+environment to ensure compatibility and performance.
+
+#### 🔄 Direct Script Synchronization
+
+HomeyScriptKit includes a synchronization feature that allows you to directly
+sync your scripts to your Homey device. This eliminates the need for manual
+copying and pasting, streamlining the development and deployment process. Simply
+run the sync command, and your scripts will be automatically updated on your
+Homey, making it easier to test and iterate on your automation scripts.
+
+**Disclaimer:** Whilst the author has taken every step to ensure the reliability
+and safety of this tool, it is provided as-is without any guarantees. Always
+ensure you have a backup of your scripts before performing any operations, as
+some commands may overwrite existing scripts. Additionally, be mindful of
+running commands during active automation flows to prevent any potential
+disruption to your home automation.
+
+For detailed information about using the CLI tool, see [HSK_CLI.md](HSK_CLI.md).
 
 ## Available Scripts
 
@@ -78,19 +101,22 @@ HomeyScriptKit's build system can bundle third-party npm packages directly into 
 
 ### Using Scripts in Flows
 
-Once installed, call your scripts from HomeyScript flows using the HSK URL format:
+Once installed, call your scripts from HomeyScript flows using the HSK URL
+format:
 
 ```
 hsk://script-name/command?parameter1=value1&parameter2=value2
 ```
 
-The script results will be available in subsequent flow cards via tags like `script-name.command.Result`.
+The script results will be available in subsequent flow cards via tags like
+`script-name.command.Result`.
 
 ## Creating Your Own Scripts
 
 📖 **[Complete Script Creation Guide →](CREATING_SCRIPTS.md)**
 
-Want to create your own HomeyScript scripts using HSK? Check out the guide which covers:
+Want to create your own HomeyScript scripts using HSK? Check out the guide which
+covers:
 
 - Development setup and environment
 - Step-by-step script creation
@@ -124,4 +150,6 @@ If you encounter any issues or have questions:
    [HomeyScript documentation](https://athombv.github.io/com.athom.homeyscript/)
 3. Visit the [Homey Community](https://community.homey.app/)
 
-**💡 Troubleshooting tip:** If you're experiencing issues with a script, try using the debug builds from the `./dist` directory which contain unminified, readable code that's easier to troubleshoot in HomeyScript.
+**💡 Troubleshooting tip:** If you're experiencing issues with a script, try
+using the debug builds from the `./dist` directory which contain unminified,
+readable code that's easier to troubleshoot in HomeyScript.
