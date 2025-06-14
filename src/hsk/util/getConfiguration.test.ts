@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it } from 'vitest';
 
-import { getConfiguration } from './hsk';
+import { getConfiguration } from './getConfiguration';
 
 describe('HSK Configuration Parser', () => {
   describe('getConfiguration', () => {

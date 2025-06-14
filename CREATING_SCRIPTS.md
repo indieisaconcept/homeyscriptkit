@@ -1,6 +1,8 @@
 # Creating Scripts with HSK
 
-HomeyScriptKit (HSK) provides a framework for creating standardized HomeyScript scripts with URL-like argument passing and result handling. This comprehensive guide covers everything you need to know about developing your own scripts.
+HomeyScriptKit (HSK) provides a framework for creating standardized HomeyScript
+scripts with URL-like argument passing and result handling. This comprehensive
+guide covers everything you need to know about developing your own scripts.
 
 ## Development Setup
 
@@ -78,7 +80,7 @@ HSK automatically manages result tagging:
 All HSK scripts follow a consistent pattern:
 
 ```typescript
-import hsk, { type Event, type BaseParams } from '../hsk';
+import hsk, { type BaseParams, type Event } from '../hsk';
 
 // Define your parameter types (optional but recommended)
 interface MyScriptParams extends BaseParams {
@@ -89,11 +91,11 @@ interface MyScriptParams extends BaseParams {
 // Your script logic
 await hsk(async (event: Event<'myCommand', MyScriptParams>) => {
   const { command, params, script, result } = event;
-  
+
   // Your script implementation here
   console.log(`Executing ${command} on ${script}`);
   console.log('Parameters:', params);
-  
+
   // Return any data you want to make available to subsequent flow cards
   return { success: true, message: 'Script executed successfully' };
 });
@@ -115,7 +117,7 @@ Create an `index.ts` file in your new directory:
 
 ```typescript
 // packages/my-script/index.ts
-import hsk, { type Event, type BaseParams } from '../hsk';
+import hsk, { type BaseParams, type Event } from '../hsk';
 
 interface MyScriptParams extends BaseParams {
   name: string;
@@ -124,20 +126,20 @@ interface MyScriptParams extends BaseParams {
 
 await hsk(async (event: Event<'execute', MyScriptParams>) => {
   const { params } = event;
-  
+
   if (!params.name) {
     throw new Error('Name parameter is required');
   }
-  
+
   const action = params.action || 'default';
   const message = `Hello ${params.name}, executing ${action} action!`;
-  
+
   console.log(message);
-  
+
   return {
     message,
     timestamp: new Date().toISOString(),
-    success: true
+    success: true,
   };
 });
 ```
@@ -170,6 +172,7 @@ hsk://my-script/execute?name=John&action=greet
 ```
 
 This will:
+
 - Execute the `execute` command in your `my-script` script
 - Pass `name=John` and `action=greet` as parameters
 - Store the result in the tag `my-script.execute.Result`
@@ -187,11 +190,14 @@ This will:
 - `npm run test:run` - Run tests once
 - `npm run test:watch` - Run tests in watch mode (same as `npm test`)
 
-**💡 Pro tip:** Use `build-debug` during development and `build` for final deployment to get the best of both worlds - readable code for debugging and optimized code for production.
+**💡 Pro tip:** Use `build-debug` during development and `build` for final
+deployment to get the best of both worlds - readable code for debugging and
+optimized code for production.
 
 ### Building Scripts
 
-Scripts in the `packages` directory are compiled into the `dist` directory using Rolldown, making them ready for use in HomeyScript. The build process:
+Scripts in the `packages` directory are compiled into the `dist` directory using
+Rolldown, making them ready for use in HomeyScript. The build process:
 
 1. Formats the code using Prettier
 2. Runs ESLint for code quality checks
@@ -202,7 +208,8 @@ Scripts in the `packages` directory are compiled into the `dist` directory using
 
 ### Build Output
 
-The compiled scripts in the `dist` directory are ready to be copied into your HomeyScript environment. Each script is:
+The compiled scripts in the `dist` directory are ready to be copied into your
+HomeyScript environment. Each script is:
 
 - Bundled into a single file
 - Optimized for HomeyScript runtime
@@ -217,6 +224,7 @@ HomeyScriptKit provides two build modes optimized for different scenarios:
 #### Debug vs Production Builds
 
 **Debug builds** (`npm run build-debug`):
+
 - Preserve original variable names
 - Maintain proper code formatting and indentation
 - Keep readable function names
@@ -224,6 +232,7 @@ HomeyScriptKit provides two build modes optimized for different scenarios:
 - Easier to debug in HomeyScript environment
 
 **Production builds** (`npm run build`):
+
 - Minified and optimized for size
 - Ideal for deployment to production environments
 
@@ -231,10 +240,14 @@ HomeyScriptKit provides two build modes optimized for different scenarios:
 
 When troubleshooting scripts directly on your Homey device:
 
-1. **Use debug builds** - Copy scripts from `./dist` directory that were built with `npm run build-debug`
-2. **Add logging statements** - Use `console.log()` liberally to trace execution flow
-3. **Check HomeyScript logs** - View execution details and error messages in the HomeyScript interface
-4. **Test incrementally** - Start with simple parameter values and gradually increase complexity
+1. **Use debug builds** - Copy scripts from `./dist` directory that were built
+   with `npm run build-debug`
+2. **Add logging statements** - Use `console.log()` liberally to trace execution
+   flow
+3. **Check HomeyScript logs** - View execution details and error messages in the
+   HomeyScript interface
+4. **Test incrementally** - Start with simple parameter values and gradually
+   increase complexity
 
 #### Local Development Debugging
 
@@ -264,7 +277,7 @@ Example debugging approach:
 await hsk(async (event: Event<'debug-example', MyParams>) => {
   console.log('Received event:', event);
   console.log('Parameters:', event.params);
-  
+
   try {
     const result = await someOperation(event.params);
     console.log('Operation result:', result);
@@ -278,7 +291,8 @@ await hsk(async (event: Event<'debug-example', MyParams>) => {
 
 ### Testing
 
-The project uses [Vitest](https://vitest.dev/) for testing, providing fast and reliable unit testing capabilities.
+The project uses [Vitest](https://vitest.dev/) for testing, providing fast and
+reliable unit testing capabilities.
 
 #### Running Tests
 
@@ -294,7 +308,9 @@ npm run test:watch
 
 #### Writing Tests
 
-Tests are written using Vitest and should be placed alongside your source files or in a dedicated `__tests__` directory. Test files should follow the naming convention `*.test.ts` or `*.spec.ts`.
+Tests are written using Vitest and should be placed alongside your source files
+or in a dedicated `__tests__` directory. Test files should follow the naming
+convention `*.test.ts` or `*.spec.ts`.
 
 Example test structure:
 
@@ -320,7 +336,8 @@ The project includes GitHub Actions workflow that automatically:
 - ✅ Runs linting checks
 - ✅ Ensures code quality before merging
 
-The CI workflow runs on both `main` and `develop` branches, ensuring code quality and preventing regressions.
+The CI workflow runs on both `main` and `develop` branches, ensuring code
+quality and preventing regressions.
 
 ### Development Environment
 
@@ -355,24 +372,24 @@ const commands = {
     console.log('Starting...', params);
     return { status: 'started' };
   },
-  
+
   stop: async (params: any) => {
     console.log('Stopping...', params);
     return { status: 'stopped' };
   },
-  
+
   status: async (params: any) => {
     return { status: 'running', uptime: '5 minutes' };
-  }
+  },
 };
 
 await hsk(async (event: Event<keyof typeof commands>) => {
   const { command, params } = event;
-  
+
   if (!commands[command]) {
     throw new Error(`Unknown command: ${command}`);
   }
-  
+
   return commands[command](params);
 });
 ```
@@ -393,7 +410,8 @@ You can specify custom result tag names:
 hsk://my-script/execute/customResult?name=John
 ```
 
-This stores the result in `my-script.customResult.Result` instead of the default `my-script.execute.Result`.
+This stores the result in `my-script.customResult.Result` instead of the default
+`my-script.execute.Result`.
 
 ### Parameter Validation
 
@@ -402,15 +420,15 @@ Always validate your parameters for robust scripts:
 ```typescript
 await hsk(async (event: Event<'process', MyParams>) => {
   const { params } = event;
-  
+
   // Validate required parameters
   const required = ['deviceId', 'action'];
-  const missing = required.filter(param => !params[param]);
-  
+  const missing = required.filter((param) => !params[param]);
+
   if (missing.length > 0) {
     throw new Error(`Missing required parameters: ${missing.join(', ')}`);
   }
-  
+
   // Your script logic here
   return processDevice(params.deviceId, params.action);
 });
@@ -451,7 +469,7 @@ Validate all required parameters before processing:
 
 ```typescript
 const validateParams = (params: any, required: string[]) => {
-  const missing = required.filter(param => !params[param]);
+  const missing = required.filter((param) => !params[param]);
   if (missing.length > 0) {
     throw new Error(`Missing required parameters: ${missing.join(', ')}`);
   }
@@ -465,11 +483,11 @@ Comment your code and document expected parameters:
 ```typescript
 /**
  * Controls a smart device
- * 
+ *
  * Required parameters:
  * - deviceId: The device identifier
  * - action: The action to perform (on/off/toggle)
- * 
+ *
  * Optional parameters:
  * - brightness: Brightness level (0-100) for dimmable devices
  */
@@ -482,6 +500,7 @@ Write tests for your script logic:
 ```typescript
 // my-script.test.ts
 import { describe, expect, it } from 'vitest';
+
 import { myScriptFunction } from './index';
 
 describe('MyScript', () => {
@@ -494,7 +513,8 @@ describe('MyScript', () => {
 
 ### 6. Debugging
 
-Follow the comprehensive debugging strategies outlined in the [Debugging Scripts](#debugging-scripts) section. Key points:
+Follow the comprehensive debugging strategies outlined in the
+[Debugging Scripts](#debugging-scripts) section. Key points:
 
 - Always use `npm run build-debug` during development
 - Add strategic `console.log()` statements to trace execution
@@ -508,14 +528,14 @@ Follow the comprehensive debugging strategies outlined in the [Debugging Scripts
 ```typescript
 await hsk(async (event: Event<'fetch', { url: string; method?: string }>) => {
   const { url, method = 'GET' } = event.params;
-  
+
   const response = await fetch(url, { method });
   const data = await response.json();
-  
+
   return {
     status: response.status,
     data,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 });
 ```
@@ -525,7 +545,7 @@ await hsk(async (event: Event<'fetch', { url: string; method?: string }>) => {
 ```typescript
 await hsk(async (event: Event<'process', ProcessParams>) => {
   const { params } = event;
-  
+
   if (params.mode === 'automatic') {
     return await automaticProcess(params);
   } else if (params.mode === 'manual') {
@@ -541,6 +561,7 @@ await hsk(async (event: Event<'process', ProcessParams>) => {
 ### Simple Script
 
 Check out `packages/example/` for a basic greeting script that demonstrates:
+
 - Parameter handling
 - Input validation
 - Result returning
@@ -548,6 +569,7 @@ Check out `packages/example/` for a basic greeting script that demonstrates:
 ### Complex Script
 
 Check out `packages/sonos/` for a more advanced script that shows:
+
 - Multiple commands
 - External API integration
 - Modular code organization
@@ -557,16 +579,20 @@ Check out `packages/sonos/` for a more advanced script that shows:
 
 ### Common Issues
 
-1. **Script not found**: Ensure the script name in the URL matches the name of your HomeyScript
+1. **Script not found**: Ensure the script name in the URL matches the name of
+   your HomeyScript
 2. **Parameters not received**: Check URL encoding and parameter names
-3. **Result not available**: Verify the result tag name and check for execution errors
+3. **Result not available**: Verify the result tag name and check for execution
+   errors
 4. **Build errors**: Run `npm run lint` to check for code issues
 
 ### Getting Help
 
-For detailed debugging strategies and techniques, see the [Debugging Scripts](#debugging-scripts) section above.
+For detailed debugging strategies and techniques, see the
+[Debugging Scripts](#debugging-scripts) section above.
 
 If you're still experiencing issues:
+
 1. Check the HomeyScript logs for execution details
 2. Test with minimal parameter sets first
 3. Verify your script builds without errors locally
@@ -581,4 +607,6 @@ Once you've created your script:
 3. Consider adding TypeScript documentation
 4. Share your script with the community if it might be useful to others
 
-For more advanced topics, explore the existing scripts in the `packages/` directory and refer to the main README for development workflows and testing strategies.
+For more advanced topics, explore the existing scripts in the `packages/`
+directory and refer to the main README for development workflows and testing
+strategies.

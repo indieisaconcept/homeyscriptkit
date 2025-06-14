@@ -1,4 +1,4 @@
-import type { BaseParams } from '../hsk';
+import type { BaseParams } from '../../src/hsk';
 
 /**
  * Base parameters required for all Sonos operations

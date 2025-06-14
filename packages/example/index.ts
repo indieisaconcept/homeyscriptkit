@@ -1,4 +1,4 @@
-import hsk, { type BaseParams, type Event } from '../hsk';
+import hsk, { type BaseParams, type Event } from '../../src/hsk';
 
 /**
  * A simple script that takes a name and greeting as arguments and prints them

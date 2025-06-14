@@ -10,6 +10,7 @@ export default defineConfig({
       reporter: ['text', 'html'],
       exclude: ['node_modules/', 'dist/', '**/*.config.*', '**/*.d.ts'],
     },
+    silent: 'passed-only',
   },
   resolve: {
     alias: {
