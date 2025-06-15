@@ -12,6 +12,7 @@ export default defineConfig([
     'build',
     'package-lock.json',
     'tsconfig.json',
+    '**/*.min.js',
   ]),
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
@@ -26,14 +27,19 @@ export default defineConfig([
   tseslint.configs.stylistic,
   eslintPluginPrettierRecommended,
   {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
+    files: ['**/*.{ts,tsx,mts,cts}'],
     rules: {
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
+          args: 'all',
           argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
+          caughtErrors: 'all',
           caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
         },
       ],
     },
