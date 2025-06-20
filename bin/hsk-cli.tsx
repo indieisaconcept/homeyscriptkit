@@ -14,7 +14,17 @@ import { ErrorDisplay } from '../src/cli/components/ErrorDisplay';
 import { Layout } from '../src/cli/components/Layout';
 import { OperationResultsDisplay } from '../src/cli/components/OperationResultsDisplay';
 import { ScriptsTable } from '../src/cli/components/ScriptsTable';
+import { CLIFlags } from '../src/cli/types';
 import { NormalizedOperationResults } from '../src/cli/util/handleOperationResults';
+
+/**
+ * Configuration file interface
+ */
+interface ConfigFile {
+  https: boolean;
+  apiKey: string;
+  ip: string;
+}
 
 const handlers = {
   list: listHandler,
@@ -50,15 +60,22 @@ const cli = meow(
 		--https, -s              Use HTTPS instead of HTTP to connect to Homey
 		--verbose                Show detailed error information
 		--dir, -d <directory>    Specify directory for script operations
+		--apiKey <key>           API key for Homey authentication
+		--ip <address>           Homey IP address
 
 	Examples
 
 		$ npx hsk sync --dir ./scripts
 		$ npx hsk pull --dir ./my-scripts
+		$ npx hsk list --apiKey your-api-key --ip 192.168.1.100
 
-	Note: Authentication is handled automatically using stored Athom Cloud API
-	      credentials. Please authenticate with the Homey CLI first if you
-	      haven't already.
+	Authentication
+
+	API key authentication is required. You must provide both --apiKey and --ip flags,
+	or configure them in the .hsk.json file. Command line flags take precedence over
+	configuration file values.
+
+	To create an API key, see: https://support.homey.app/hc/en-us/articles/8178797067292-Getting-started-with-API-Keys
 `,
   {
     description: false,
@@ -83,6 +100,12 @@ const cli = meow(
         type: 'string',
         shortFlag: 'd',
       },
+      apiKey: {
+        type: 'string',
+      },
+      ip: {
+        type: 'string',
+      },
     },
   }
 );
@@ -98,13 +121,26 @@ async function main() {
     return;
   }
 
+  // Type the flags for better type safety
+  const flags = cli.flags as CLIFlags;
+  const configFile = defaultConfig as ConfigFile;
+
   const config = {
-    ...defaultConfig,
-    https: cli.flags.https ?? defaultConfig.https,
-    verbose: cli.flags.verbose ?? false,
+    https: flags.https ?? configFile.https,
+    verbose: flags.verbose ?? false,
+    // Command line flags take precedence over config file values
+    apiKey: flags.apiKey ?? configFile.apiKey,
+    ip: flags.ip ?? configFile.ip,
   };
 
-  const { help, version, https, verbose, ...commandFlags } = cli.flags;
+  // Validate that both apiKey and ip are provided
+  if (!config.apiKey || !config.ip) {
+    throw new Error(
+      'API key and IP address are required. Use --apiKey and --ip flags or configure them in .hsk.json'
+    );
+  }
+
+  const { help, version, https, verbose, apiKey, ip, ...commandFlags } = flags;
 
   const handler = handlers[command as keyof typeof handlers];
 
@@ -112,14 +148,13 @@ async function main() {
     throw new Error(`Unknown command: ${command}`);
   }
 
-  process.stdout.write('\n');
   return handler({ flags: commandFlags, args }, config);
 }
 
 main()
   .then((result) => {
     if (!result) {
-      return;
+      process.exit(0);
     }
 
     const isScriptsResult = Array.isArray(result);
@@ -134,6 +169,7 @@ main()
         )}
       </Layout>
     );
+    process.exit(0);
   })
   .catch((error) => {
     render(
@@ -144,7 +180,5 @@ main()
         />
       </Layout>
     );
-  })
-  .finally(() => {
     process.exit(1);
   });

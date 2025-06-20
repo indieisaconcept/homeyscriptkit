@@ -10,7 +10,8 @@ vi.mock('./util');
 
 describe('pullHandler', () => {
   const mockEvent: CommandEvent = {
-    args: ['test-dir'],
+    args: [],
+    flags: { dir: 'test-dir' },
   };
 
   const mockClient = {} as HomeyScriptClient;
@@ -20,7 +21,7 @@ describe('pullHandler', () => {
   });
 
   it('should pull all scripts when no arguments are provided', async () => {
-    const eventWithoutArgs: CommandEvent = { args: [] };
+    const eventWithoutArgs: CommandEvent = { args: [], flags: {} };
     await pullHandler({ event: eventWithoutArgs, client: mockClient });
 
     expect(pullCommand).toHaveBeenCalledWith({

@@ -4,19 +4,20 @@ import pupa from 'pupa';
 import type { CommandEvent } from '../types';
 import type { HomeyScriptClient } from './client';
 import { getClient } from './getClient';
-import type { Config as SessionConfig } from './getSession';
+import type { Config } from './getClient';
 
 interface CommandConfig {
   confirm?: {
     message: string;
     default?: boolean;
   };
+  eventDefaults?: Record<string, unknown>;
 }
 
 type CommandHandler<T> = (params: {
   client: HomeyScriptClient;
   event: CommandEvent;
-  config: SessionConfig;
+  config: Config;
 }) => Promise<T>;
 
 export const command = <T>(
@@ -26,21 +27,32 @@ export const command = <T>(
   const commandConfig = handler ? (configOrHandler as CommandConfig) : {};
   const commandHandler = handler || (configOrHandler as CommandHandler<T>);
 
-  return async (
-    event: CommandEvent,
-    sessionConfig: SessionConfig
-  ): Promise<T> => {
+  return async (event: CommandEvent, sessionConfig: Config): Promise<T> => {
+    // Merge eventDefaults with the actual event, handling nested objects
+    const mergedEvent = commandConfig.eventDefaults
+      ? {
+          ...event,
+          ...commandConfig.eventDefaults,
+          flags: {
+            ...(commandConfig.eventDefaults['flags'] ?? {}),
+            ...event.flags,
+          },
+        }
+      : event;
+
     if (commandConfig.confirm?.message) {
       const message = pupa(
         commandConfig.confirm.message,
         {
-          event,
+          event: mergedEvent,
           config: sessionConfig,
         },
         {
           ignoreMissing: true,
         }
       );
+
+      process.stdout.write('\n');
 
       const confirmed = await confirm(
         {
@@ -52,14 +64,19 @@ export const command = <T>(
         }
       );
 
+      process.stdout.write('\x1b[A');
+
       if (!confirmed) {
-        process.stdout.write('\x1b[A');
         throw new Error('Operation cancelled by the user');
       }
     }
 
     const client = await getClient(sessionConfig);
 
-    return commandHandler({ client, event, config: sessionConfig });
+    return commandHandler({
+      client,
+      event: mergedEvent,
+      config: sessionConfig,
+    });
   };
 };

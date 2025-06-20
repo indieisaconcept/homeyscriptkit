@@ -69,6 +69,11 @@ copying and pasting, streamlining the development and deployment process. Simply
 run the sync command, and your scripts will be automatically updated on your
 Homey, making it easier to test and iterate on your automation scripts.
 
+The CLI supports API key authentication for direct Homey access. You'll need to
+create an API key in your Homey. See the
+[Homey API Key documentation](https://support.homey.app/hc/en-us/articles/8178797067292-Getting-started-with-API-Keys)
+for detailed instructions on how to create and manage API keys.
+
 **Disclaimer:** Whilst the author has taken every step to ensure the reliability
 and safety of this tool, it is provided as-is without any guarantees. Always
 ensure you have a backup of your scripts before performing any operations, as

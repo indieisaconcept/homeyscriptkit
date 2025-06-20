@@ -3,6 +3,8 @@ import { HomeyScriptClient } from '../../util/client';
 import { command } from '../../util/command';
 import { pullCommand } from './util';
 
+const DEFAULT_DIR = 'packages';
+
 /**
  * Handles the pull command to fetch HomeyScripts from the server.
  * This function pulls HomeyScripts from the server and saves them to the specified directory.
@@ -20,7 +22,7 @@ export const handler = async ({
   client: HomeyScriptClient;
   event: CommandEvent;
 }) => {
-  const dir = event.args?.[0] ?? 'packages';
+  const dir = event.flags.dir ?? DEFAULT_DIR;
   return pullCommand({ client, dir });
 };
 
@@ -35,6 +37,11 @@ export default command(
       message:
         "This may overwrite the contents of existing HomeyScripts in the '{event.flags.dir}' directory. Are you sure you want to continue?",
       default: false,
+    },
+    eventDefaults: {
+      flags: {
+        dir: DEFAULT_DIR,
+      },
     },
   },
   handler
