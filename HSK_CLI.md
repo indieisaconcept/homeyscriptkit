@@ -19,6 +19,40 @@ After cloning the repository, install dependencies:
 npm install
 ```
 
+## Configuration
+
+To use the CLI synchronization features, you'll need to configure your Homey
+connection. You can do this in two ways:
+
+### Configuration File (Recommended)
+
+1. Copy `.hsk.template.json` to `.hsk.json` in the repository root
+2. Update the configuration with your Homey's IP address and API key:
+   - `ip`: Your Homey's IP address on your local network
+   - `apiKey`: Your Homey API key (see
+     [Homey API Key documentation](https://support.homey.app/hc/en-us/articles/8178797067292-Getting-started-with-API-Keys))
+   - `https`: Set to `true` if your Homey uses HTTPS, `false` for HTTP
+
+**Example configuration:**
+
+```json
+{
+  "https": false,
+  "ip": "192.168.1.100",
+  "apiKey": "your-api-key-here"
+}
+```
+
+### CLI Flags (Alternative)
+
+You can also provide these values directly via CLI flags, which will override the configuration file values:
+
+```bash
+npx hsk list --apiKey your-api-key --ip 192.168.1.100 --https
+```
+
+**Note:** CLI flags take precedence over configuration file values, allowing you to use different credentials for different operations if needed.
+
 ## Basic Usage
 
 ```bash
@@ -92,6 +126,8 @@ to backup your current scripts before performing a restore operation.
 - `--https, -s` - Use HTTPS instead of HTTP to connect to Homey
 - `--verbose` - Show detailed error information
 - `--dir, -d <directory>` - Specify directory for script operations
+- `--apiKey <key>` - API key for Homey authentication
+- `--ip <address>` - Homey IP address
 
 ## Examples
 
@@ -101,17 +137,24 @@ npx hsk sync --dir ./scripts
 
 # Pull scripts to a custom directory
 npx hsk pull --dir ./my-scripts
+
+# Override configuration with CLI flags
+npx hsk list --apiKey your-api-key --ip 192.168.1.100 --https
 ```
 
 ## Authentication
 
-The CLI uses the Athom Cloud API for authentication. If you haven't already
-authenticated:
+The CLI requires API key authentication for direct Homey access. You can provide authentication credentials either through the configuration file (see Configuration section above) or via CLI flags.
 
-1. Run `npx homey login` to authenticate with your Athom account
-2. The HomeyScriptKit CLI will automatically use these credentials
+**Creating API Keys:** To create an API key for your Homey, see the
+[Homey API Key documentation](https://support.homey.app/hc/en-us/articles/8178797067292-Getting-started-with-API-Keys)
+for detailed instructions on how to create and manage API keys.
 
-## Configuration
+**HTTPS Format:** When using `--https` with API key authentication, the CLI will
+automatically format the hostname using Homey's local domain format:
+`https://192-168-1-100.homey.homeylocal.com` instead of `https://192.168.1.100`.
+
+## Script Locations
 
 The CLI will look for built scripts in the following locations:
 
@@ -126,6 +169,10 @@ The CLI will look for built scripts in the following locations:
 3. **Directory Structure**: Use the `--dir` option to maintain a clean project
    structure
 4. **Testing**: Test scripts locally before syncing to your Homey
+5. **Authentication**: Use API key authentication for direct local network
+   access
+6. **Security**: Keep your API key secure and don't share it in public
+   repositories
 
 ## Troubleshooting
 
@@ -133,9 +180,9 @@ The CLI will look for built scripts in the following locations:
 
 1. **Authentication Failed**
 
-   - Ensure you're logged in with `npx homey login`
-   - Check your internet connection
-   - Verify your Athom account credentials
+   - Check your API key and IP address
+   - Verify your internet connection
+   - Ensure the API key is valid and not expired
 
 2. **Sync Errors**
 
@@ -147,6 +194,7 @@ The CLI will look for built scripts in the following locations:
    - Verify your Homey is online
    - Check your network connection
    - Try using `--https` if HTTP fails
+   - Ensure the IP address is correct
 
 ## Contributing
 

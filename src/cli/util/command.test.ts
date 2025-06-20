@@ -5,7 +5,7 @@ import type { CommandEvent } from '../types';
 import type { HomeyScriptClient } from './client';
 import { command } from './command';
 import { getClient } from './getClient';
-import type { Config as SessionConfig } from './getSession';
+import type { Config } from './getClient';
 
 // Mock dependencies
 vi.mock('@inquirer/prompts');
@@ -15,14 +15,15 @@ describe('command', () => {
   const mockEvent: CommandEvent = {
     args: ['test-arg'],
     flags: {
-      script: 'test-script',
+      dir: 'test-dir',
     },
   };
 
-  const mockConfig: SessionConfig = {
-    clientId: 'test-client-id',
-    clientSecret: 'test-client-secret',
-    https: true,
+  const mockConfig: Config = {
+    apiKey: 'test-api-key',
+    ip: '192.168.1.100',
+    https: false,
+    verbose: false,
   };
 
   const mockClient = {} as HomeyScriptClient;
@@ -174,7 +175,7 @@ describe('command', () => {
       const cmd = command(
         {
           confirm: {
-            message: 'Are you sure you want to sync {event.flags.script}?',
+            message: 'Are you sure you want to sync {event.flags.dir}?',
             default: false,
           },
         },
@@ -185,7 +186,7 @@ describe('command', () => {
 
       expect(confirm).toHaveBeenCalledWith(
         {
-          message: 'Are you sure you want to sync test-script?',
+          message: 'Are you sure you want to sync test-dir?',
           default: false,
         },
         {
@@ -200,7 +201,7 @@ describe('command', () => {
       const cmd = command(
         {
           confirm: {
-            message: 'Using client ID: {config.clientId}',
+            message: 'Using API key: {config.apiKey}',
             default: false,
           },
         },
@@ -211,7 +212,7 @@ describe('command', () => {
 
       expect(confirm).toHaveBeenCalledWith(
         {
-          message: 'Using client ID: test-client-id',
+          message: 'Using API key: test-api-key',
           default: false,
         },
         {
@@ -226,8 +227,7 @@ describe('command', () => {
       const cmd = command(
         {
           confirm: {
-            message:
-              'Syncing {event.flags.script} with client {config.clientId}',
+            message: 'Syncing {event.flags.dir} with API key {config.apiKey}',
             default: false,
           },
         },
@@ -238,7 +238,7 @@ describe('command', () => {
 
       expect(confirm).toHaveBeenCalledWith(
         {
-          message: 'Syncing test-script with client test-client-id',
+          message: 'Syncing test-dir with API key test-api-key',
           default: false,
         },
         {
@@ -271,6 +271,78 @@ describe('command', () => {
           clearPromptOnDone: true,
         }
       );
+    });
+  });
+
+  describe('eventDefaults', () => {
+    it('should merge eventDefaults with provided event flags', async () => {
+      const handler = vi.fn().mockResolvedValue(undefined);
+      const cmd = command(
+        {
+          eventDefaults: {
+            flags: {
+              dir: 'default-dir',
+              apiKey: 'default-api-key',
+            },
+          },
+        },
+        handler
+      );
+
+      const eventWithFlags: CommandEvent = {
+        args: [],
+        flags: {
+          dir: 'custom-dir',
+          ip: '192.168.1.1',
+        },
+      };
+
+      await cmd(eventWithFlags, mockConfig);
+
+      expect(handler).toHaveBeenCalledWith({
+        client: mockClient,
+        event: {
+          args: [],
+          flags: {
+            dir: 'custom-dir', // Should override default
+            apiKey: 'default-api-key', // Should be included from defaults
+            ip: '192.168.1.1', // Should be included from event
+          },
+        },
+        config: mockConfig,
+      });
+    });
+
+    it('should use eventDefaults when no flags are provided', async () => {
+      const handler = vi.fn().mockResolvedValue(undefined);
+      const cmd = command(
+        {
+          eventDefaults: {
+            flags: {
+              dir: 'default-dir',
+            },
+          },
+        },
+        handler
+      );
+
+      const eventWithoutFlags: CommandEvent = {
+        args: [],
+        flags: {},
+      };
+
+      await cmd(eventWithoutFlags, mockConfig);
+
+      expect(handler).toHaveBeenCalledWith({
+        client: mockClient,
+        event: {
+          args: [],
+          flags: {
+            dir: 'default-dir',
+          },
+        },
+        config: mockConfig,
+      });
     });
   });
 });

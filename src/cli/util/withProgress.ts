@@ -2,7 +2,7 @@ import { PromiseOptions, oraPromise } from 'ora';
 
 import type { CommandEvent } from '../types';
 import type { HomeyScriptClient } from './client';
-import type { Config as SessionConfig } from './getSession';
+import type { Config } from './getClient';
 
 type ProgressOptions = Pick<
   PromiseOptions<unknown>,
@@ -12,7 +12,7 @@ type ProgressOptions = Pick<
 type CommandHandler<T> = (params: {
   client: HomeyScriptClient;
   event: CommandEvent;
-  config: SessionConfig;
+  config: Config;
 }) => Promise<T>;
 
 type CommandResult<T> = T;
