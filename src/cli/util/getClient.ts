@@ -1,11 +1,5 @@
 import { HomeyScriptClient } from './client';
-
-export interface Config {
-  https: boolean;
-  verbose: boolean;
-  apiKey: string;
-  ip: string;
-}
+import type { Config } from './getConfig';
 
 /**
  * Creates a session object for API key authentication

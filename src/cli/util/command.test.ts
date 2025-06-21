@@ -5,7 +5,7 @@ import type { CommandEvent } from '../types';
 import type { HomeyScriptClient } from './client';
 import { command } from './command';
 import { getClient } from './getClient';
-import type { Config } from './getClient';
+import type { Config } from './getConfig';
 
 // Mock dependencies
 vi.mock('@inquirer/prompts');
@@ -124,6 +124,37 @@ describe('command', () => {
       );
       expect(getClient).not.toHaveBeenCalled();
       expect(handler).not.toHaveBeenCalled();
+    });
+
+    it('should skip confirmation when skipConfirmation is true', async () => {
+      const handler = vi.fn().mockResolvedValue(undefined);
+      const cmd = command(
+        {
+          confirm: {
+            message: 'Test confirmation?',
+            default: false,
+          },
+        },
+        handler
+      );
+
+      const eventWithSkipConfirmation = {
+        ...mockEvent,
+        flags: {
+          ...mockEvent.flags,
+          skipConfirmation: true,
+        },
+      };
+
+      await cmd(eventWithSkipConfirmation, mockConfig);
+
+      expect(confirm).not.toHaveBeenCalled();
+      expect(getClient).toHaveBeenCalledWith(mockConfig);
+      expect(handler).toHaveBeenCalledWith({
+        client: mockClient,
+        event: eventWithSkipConfirmation,
+        config: mockConfig,
+      });
     });
 
     it('should handle client errors', async () => {

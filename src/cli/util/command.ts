@@ -4,7 +4,7 @@ import pupa from 'pupa';
 import type { CommandEvent } from '../types';
 import type { HomeyScriptClient } from './client';
 import { getClient } from './getClient';
-import type { Config } from './getClient';
+import type { Config } from './getConfig';
 
 interface CommandConfig {
   confirm?: {
@@ -40,7 +40,10 @@ export const command = <T>(
         }
       : event;
 
-    if (commandConfig.confirm?.message) {
+    const showConfirmation =
+      commandConfig.confirm?.message && !mergedEvent.flags.skipConfirmation;
+
+    if (showConfirmation && commandConfig.confirm) {
       const message = pupa(
         commandConfig.confirm.message,
         {

@@ -80,7 +80,7 @@ HSK automatically manages result tagging:
 All HSK scripts follow a consistent pattern:
 
 ```typescript
-import hsk, { type BaseParams, type Event } from '../hsk';
+import hsk, { type BaseParams, type Event } from '@hsk';
 
 // Define your parameter types (optional but recommended)
 interface MyScriptParams extends BaseParams {
@@ -117,7 +117,7 @@ Create an `index.ts` file in your new directory:
 
 ```typescript
 // packages/my-script/index.ts
-import hsk, { type BaseParams, type Event } from '../hsk';
+import hsk, { type BaseParams, type Event } from '@hsk';
 
 interface MyScriptParams extends BaseParams {
   name: string;
@@ -365,7 +365,7 @@ The project uses TypeScript with the following key settings:
 You can handle multiple commands in a single script:
 
 ```typescript
-import hsk, { type Event } from '../hsk';
+import hsk, { type Event } from '@hsk';
 
 const commands = {
   start: async (params: any) => {

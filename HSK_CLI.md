@@ -45,13 +45,15 @@ connection. You can do this in two ways:
 
 ### CLI Flags (Alternative)
 
-You can also provide these values directly via CLI flags, which will override the configuration file values:
+You can also provide these values directly via CLI flags, which will override
+the configuration file values:
 
 ```bash
 npx hsk list --apiKey your-api-key --ip 192.168.1.100 --https
 ```
 
-**Note:** CLI flags take precedence over configuration file values, allowing you to use different credentials for different operations if needed.
+**Note:** CLI flags take precedence over configuration file values, allowing you
+to use different credentials for different operations if needed.
 
 ## Basic Usage
 
@@ -125,6 +127,7 @@ to backup your current scripts before performing a restore operation.
 - `--version, -v` - Show version
 - `--https, -s` - Use HTTPS instead of HTTP to connect to Homey
 - `--verbose` - Show detailed error information
+- `--skipConfirmation` - Skip confirmation prompts for destructive operations
 - `--dir, -d <directory>` - Specify directory for script operations
 - `--apiKey <key>` - API key for Homey authentication
 - `--ip <address>` - Homey IP address
@@ -138,13 +141,19 @@ npx hsk sync --dir ./scripts
 # Pull scripts to a custom directory
 npx hsk pull --dir ./my-scripts
 
+# Skip confirmation prompts for automated workflows
+npx hsk sync --skipConfirmation
+npx hsk restore --skipConfirmation
+
 # Override configuration with CLI flags
 npx hsk list --apiKey your-api-key --ip 192.168.1.100 --https
 ```
 
 ## Authentication
 
-The CLI requires API key authentication for direct Homey access. You can provide authentication credentials either through the configuration file (see Configuration section above) or via CLI flags.
+The CLI requires API key authentication for direct Homey access. You can provide
+authentication credentials either through the configuration file (see
+Configuration section above) or via CLI flags.
 
 **Creating API Keys:** To create an API key for your Homey, see the
 [Homey API Key documentation](https://support.homey.app/hc/en-us/articles/8178797067292-Getting-started-with-API-Keys)
@@ -173,6 +182,19 @@ The CLI will look for built scripts in the following locations:
    access
 6. **Security**: Keep your API key secure and don't share it in public
    repositories
+
+## GitHub Actions Integration
+
+This repository includes automated CI/CD workflows that use the CLI for
+deployment. The workflows can:
+
+- **Manual Sync**: Trigger sync by commenting `/hsk sync` on pull requests
+- **Skip Sync**: Skip automatic sync by including `/skip-sync` in merge commit
+  messages
+- **Automatic Deployment**: Deploy on successful merges to the main branch
+
+For detailed workflow documentation, see
+[.github/workflows/README.md](.github/workflows/README.md).
 
 ## Troubleshooting
 
