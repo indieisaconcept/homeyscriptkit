@@ -129,6 +129,23 @@ covers:
 - Testing and debugging
 - Best practices and troubleshooting
 
+## GitHub Actions Automation
+
+This repository includes automated CI/CD workflows for testing, building, and
+deploying HomeyScripts to your Homey device.
+
+### What It Does
+
+- **Tests** - Runs linting and unit tests on all branches
+- **Builds** - Compiles TypeScript scripts to JavaScript on all branches
+- **Syncs** - Deploys scripts to your Homey device (on main branch merges)
+
+### Setup Required
+
+To enable automatic deployment, configure GitHub repository secrets for your
+Homey device. See [.github/workflows/README.md](.github/workflows/README.md) for
+detailed setup instructions and advanced features like manual sync triggers.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
