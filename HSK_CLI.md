@@ -27,11 +27,13 @@ connection. You can do this in two ways:
 ### Configuration File (Recommended)
 
 1. Copy `.hsk.template.json` to `.hsk.json` in the repository root
-2. Update the configuration with your Homey's IP address and API key:
+2. Update the configuration with your Homey's connection details:
    - `ip`: Your Homey's IP address on your local network
    - `apiKey`: Your Homey API key (see
      [Homey API Key documentation](https://support.homey.app/hc/en-us/articles/8178797067292-Getting-started-with-API-Keys))
    - `https`: Set to `true` if your Homey uses HTTPS, `false` for HTTP
+   - `host`: Alternative to `ip` + `https` - provide the full host URL (e.g.,
+     for tunnels)
 
 **Example configuration:**
 
@@ -43,15 +45,31 @@ connection. You can do this in two ways:
 }
 ```
 
-### CLI Flags (Alternative)
+**Example configuration with host (for tunnels):**
 
-You can also provide these values directly via CLI flags, which will override the configuration file values:
-
-```bash
-npx hsk list --apiKey your-api-key --ip 192.168.1.100 --https
+```json
+{
+  "host": "https://your-tunnel.example.com",
+  "apiKey": "your-api-key-here"
+}
 ```
 
-**Note:** CLI flags take precedence over configuration file values, allowing you to use different credentials for different operations if needed.
+### CLI Flags (Alternative)
+
+You can also provide these values directly via CLI flags, which will override
+the configuration file values:
+
+```bash
+# Using IP address
+npx hsk list --apiKey your-api-key --ip 192.168.1.100 --https
+
+# Using host URL (supersedes --ip and --https)
+npx hsk list --apiKey your-api-key --host https://your-tunnel.example.com
+```
+
+**Note:** CLI flags take precedence over configuration file values, allowing you
+to use different credentials for different operations if needed. The `--host`
+flag supersedes both `--ip` and `--https` flags when provided.
 
 ## Basic Usage
 
@@ -125,9 +143,11 @@ to backup your current scripts before performing a restore operation.
 - `--version, -v` - Show version
 - `--https, -s` - Use HTTPS instead of HTTP to connect to Homey
 - `--verbose` - Show detailed error information
+- `--skipConfirmation` - Skip confirmation prompts for destructive operations
 - `--dir, -d <directory>` - Specify directory for script operations
 - `--apiKey <key>` - API key for Homey authentication
 - `--ip <address>` - Homey IP address
+- `--host <url>` - Homey host URL (supersedes --ip and --https)
 
 ## Examples
 
@@ -138,21 +158,38 @@ npx hsk sync --dir ./scripts
 # Pull scripts to a custom directory
 npx hsk pull --dir ./my-scripts
 
+# Skip confirmation prompts for automated workflows
+npx hsk sync --skipConfirmation
+npx hsk restore --skipConfirmation
+
 # Override configuration with CLI flags
 npx hsk list --apiKey your-api-key --ip 192.168.1.100 --https
+
+# Use host URL (for tunnels or remote access)
+npx hsk list --apiKey your-api-key --host https://your-tunnel.example.com
+npx hsk sync --apiKey your-api-key --host https://your-tunnel.example.com
 ```
 
 ## Authentication
 
-The CLI requires API key authentication for direct Homey access. You can provide authentication credentials either through the configuration file (see Configuration section above) or via CLI flags.
+The CLI requires API key authentication for direct Homey access. You can provide
+authentication credentials either through the configuration file (see
+Configuration section above) or via CLI flags.
 
 **Creating API Keys:** To create an API key for your Homey, see the
 [Homey API Key documentation](https://support.homey.app/hc/en-us/articles/8178797067292-Getting-started-with-API-Keys)
 for detailed instructions on how to create and manage API keys.
 
-**HTTPS Format:** When using `--https` with API key authentication, the CLI will
-automatically format the hostname using Homey's local domain format:
-`https://192-168-1-100.homey.homeylocal.com` instead of `https://192.168.1.100`.
+**Connection Options:**
+
+- **Local Network**: Use `--ip` with optional `--https` for direct local network
+  access
+- **Remote Access**: Use `--host` with the full URL (e.g., for Cloudflare
+  tunnels, VPN endpoints)
+- **HTTPS Format**: When using `--https` with API key authentication, the CLI
+  will automatically format the hostname using Homey's local domain format:
+  `https://192-168-1-100.homey.homeylocal.com` instead of
+  `https://192.168.1.100`.
 
 ## Script Locations
 
@@ -173,6 +210,19 @@ The CLI will look for built scripts in the following locations:
    access
 6. **Security**: Keep your API key secure and don't share it in public
    repositories
+
+## GitHub Actions Integration
+
+This repository includes automated CI/CD workflows that use the CLI for
+deployment. The workflows can:
+
+- **Manual Sync**: Trigger sync by commenting `/hsk sync` on pull requests
+- **Skip Sync**: Skip automatic sync by including `/skip-sync` in merge commit
+  messages
+- **Automatic Deployment**: Deploy on successful merges to the main branch
+
+For detailed workflow documentation, see
+[.github/workflows/README.md](.github/workflows/README.md).
 
 ## Troubleshooting
 

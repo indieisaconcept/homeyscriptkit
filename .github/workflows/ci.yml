@@ -1,0 +1,101 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+  pull_request:
+  pull_request_target:
+    types: [closed]
+    branches: [main]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      manual_sync:
+        description: 'Run manual sync to Homey'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test:run
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: homeyscripts
+          path: dist/
+          retention-days: 1
+
+  manual-sync:
+    needs: [test, build]
+    if: ${{ github.event.inputs.manual_sync }}
+    uses: ./.github/workflows/sync-scripts.yml
+    with:
+      download-artifacts: true
+      build-if-comment: false
+      comment-on-pr: false
+    secrets:
+      HOMEY_API_KEY: ${{ secrets.HOMEY_API_KEY }}
+      HOMEY_HOST: ${{ secrets.HOMEY_HOST }}
+
+  sync:
+    needs: build
+    if: >
+      (github.event_name == 'pull_request_target' &&
+       github.event.pull_request.merged == true &&
+       github.event.pull_request.base.ref == 'main' &&
+       !contains(github.event.pull_request.merge_commit_message,
+                '/skip-sync')) ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       contains(github.event.comment.body, '/hsk sync'))
+    uses: ./.github/workflows/sync-scripts.yml
+    with:
+      download-artifacts: ${{ github.event_name == 'pull_request_target' }}
+      build-if-comment: ${{ github.event_name == 'issue_comment' }}
+      comment-on-pr: ${{ github.event_name == 'issue_comment' }}
+    secrets:
+      HOMEY_API_KEY: ${{ secrets.HOMEY_API_KEY }}
+      HOMEY_HOST: ${{ secrets.HOMEY_HOST }}

@@ -2,7 +2,7 @@ import { PromiseOptions, oraPromise } from 'ora';
 
 import type { CommandEvent } from '../types';
 import type { HomeyScriptClient } from './client';
-import type { Config } from './getClient';
+import type { Config } from './getConfig';
 
 type ProgressOptions = Pick<
   PromiseOptions<unknown>,

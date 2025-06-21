@@ -2,7 +2,6 @@
 import { render } from 'ink';
 import meow from 'meow';
 
-import defaultConfig from '../.hsk.json';
 import {
   backupHandler,
   listHandler,
@@ -15,16 +14,8 @@ import { Layout } from '../src/cli/components/Layout';
 import { OperationResultsDisplay } from '../src/cli/components/OperationResultsDisplay';
 import { ScriptsTable } from '../src/cli/components/ScriptsTable';
 import { CLIFlags } from '../src/cli/types';
+import { Config, getConfig } from '../src/cli/util/getConfig';
 import { NormalizedOperationResults } from '../src/cli/util/handleOperationResults';
-
-/**
- * Configuration file interface
- */
-interface ConfigFile {
-  https: boolean;
-  apiKey: string;
-  ip: string;
-}
 
 const handlers = {
   list: listHandler,
@@ -57,23 +48,29 @@ const cli = meow(
 
 		--help, -h               Show help
 		--version, -v            Show version
-		--https, -s              Use HTTPS instead of HTTP to connect to Homey
 		--verbose                Show detailed error information
+		--skipConfirmation       Skip confirmation for changes
 		--dir, -d <directory>    Specify directory for script operations
 		--apiKey <key>           API key for Homey authentication
+		--https, -s              Use HTTPS instead of HTTP to connect to Homey
 		--ip <address>           Homey IP address
+		--host <url>             Homey host URL (supersedes --ip and --https)
 
 	Examples
 
 		$ npx hsk sync --dir ./scripts
 		$ npx hsk pull --dir ./my-scripts
 		$ npx hsk list --apiKey your-api-key --ip 192.168.1.100
+		$ npx hsk list --apiKey your-api-key --host https://your-tunnel.example.com
 
 	Authentication
 
-	API key authentication is required. You must provide both --apiKey and --ip flags,
-	or configure them in the .hsk.json file. Command line flags take precedence over
-	configuration file values.
+	API key authentication is required. You must provide either:
+
+	- Both --apiKey and --ip flags (or configure them in .hsk.json)
+	- Both --apiKey and --host flags (--host supersedes --ip and --https)
+
+	Command line flags take precedence over configuration file values.
 
 	To create an API key, see: https://support.homey.app/hc/en-us/articles/8178797067292-Getting-started-with-API-Keys
 `,
@@ -96,6 +93,9 @@ const cli = meow(
       verbose: {
         type: 'boolean',
       },
+      skipConfirmation: {
+        type: 'boolean',
+      },
       dir: {
         type: 'string',
         shortFlag: 'd',
@@ -104,6 +104,9 @@ const cli = meow(
         type: 'string',
       },
       ip: {
+        type: 'string',
+      },
+      host: {
         type: 'string',
       },
     },
@@ -123,24 +126,15 @@ async function main() {
 
   // Type the flags for better type safety
   const flags = cli.flags as CLIFlags;
-  const configFile = defaultConfig as ConfigFile;
+  const configFile = await getConfig();
 
-  const config = {
-    https: flags.https ?? configFile.https,
-    verbose: flags.verbose ?? false,
-    // Command line flags take precedence over config file values
-    apiKey: flags.apiKey ?? configFile.apiKey,
-    ip: flags.ip ?? configFile.ip,
+  const config: Config = {
+    ...configFile,
+    ...flags,
   };
 
-  // Validate that both apiKey and ip are provided
-  if (!config.apiKey || !config.ip) {
-    throw new Error(
-      'API key and IP address are required. Use --apiKey and --ip flags or configure them in .hsk.json'
-    );
-  }
-
-  const { help, version, https, verbose, apiKey, ip, ...commandFlags } = flags;
+  const { help, version, https, verbose, apiKey, ip, host, ...commandFlags } =
+    flags;
 
   const handler = handlers[command as keyof typeof handlers];
 

@@ -1,11 +1,5 @@
 import { HomeyScriptClient } from './client';
-
-export interface Config {
-  https: boolean;
-  verbose: boolean;
-  apiKey: string;
-  ip: string;
-}
+import type { Config } from './getConfig';
 
 /**
  * Creates a session object for API key authentication
@@ -13,23 +7,35 @@ export interface Config {
  * @param {string} params.apiKey - The API key for authentication
  * @param {string} params.ip - The IP address of the Homey
  * @param {boolean} params.https - Whether to use HTTPS
+ * @param {string} params.host - The host URL (supersedes ip and https)
  * @returns {Object} A session object with host and token
  */
 const getApiKeySession = ({
   apiKey,
   ip,
   https,
+  host,
 }: {
   apiKey: string;
   ip: string;
   https: boolean;
+  host?: string;
 }) => {
-  const host = https
+  // If host is provided, use it directly (supersedes ip and https)
+  if (host) {
+    return {
+      host: host.startsWith('http') ? host : `http://${host}`,
+      token: apiKey,
+    };
+  }
+
+  // Fall back to ip + https logic
+  const hostUrl = https
     ? `https://${ip.replace(/\./g, '-')}.homey.homeylocal.com`
     : `http://${ip}`;
 
   return {
-    host,
+    host: hostUrl,
     token: apiKey,
   };
 };
@@ -40,9 +46,15 @@ const getApiKeySession = ({
  * @returns Promise resolving to a HomeyScriptClient instance
  */
 export const getClient = async (config: Config): Promise<HomeyScriptClient> => {
-  if (!config.apiKey || !config.ip) {
+  // If host is provided, we only need apiKey
+  if (config.host && !config.apiKey) {
     throw new Error(
-      'API key and IP address are required. Use --apiKey and --ip flags or configure them in .hsk.json'
+      'API key is required when using --host flag. Use --apiKey flag or configure it in .hsk.json'
+    );
+  } else if (!config.host && (!config.apiKey || !config.ip)) {
+    // If no host, we need both apiKey and ip
+    throw new Error(
+      'API key and IP address are required when not using --host flag. Use --apiKey and --ip flags or configure them in .hsk.json'
     );
   }
 
@@ -50,6 +62,7 @@ export const getClient = async (config: Config): Promise<HomeyScriptClient> => {
     apiKey: config.apiKey,
     ip: config.ip,
     https: config.https,
+    ...(config.host && { host: config.host }),
   });
 
   return new HomeyScriptClient(session);

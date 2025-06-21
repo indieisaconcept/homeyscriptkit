@@ -99,10 +99,9 @@ For detailed information about using the CLI tool, see [HSK_CLI.md](HSK_CLI.md).
 
 ### Installation
 
-1. Navigate to the `./dist` directory in this repository
-2. Copy the contents of your desired script
-3. Create a new HomeyScript in your Homey's web interface
-4. Paste the script contents and save
+1. Copy the contents of your desired script form the `./dist` directory
+2. Create a new HomeyScript in your Homey's web interface
+3. Paste the script contents and save
 
 ### Using Scripts in Flows
 
@@ -128,6 +127,23 @@ covers:
 - Advanced features and patterns
 - Testing and debugging
 - Best practices and troubleshooting
+
+## GitHub Actions Automation
+
+This repository includes automated CI/CD workflows for testing, building, and
+deploying HomeyScripts to your Homey device.
+
+### What It Does
+
+- **Tests** - Runs linting and unit tests on all branches
+- **Builds** - Compiles TypeScript scripts to JavaScript on all branches
+- **Syncs** - Deploys scripts to your Homey device (on main branch merges)
+
+### Setup Required
+
+To enable automatic deployment, configure GitHub repository secrets for your
+Homey device. See [.github/workflows/README.md](.github/workflows/README.md) for
+detailed setup instructions and advanced features like manual sync triggers.
 
 ## Contributing
 

@@ -58,7 +58,57 @@ describe('getClient', () => {
     expect(result).toBe(mockClient);
   });
 
-  it('should throw error when apiKey is missing', async () => {
+  it('should create client with host URL when host is provided', async () => {
+    const config = {
+      apiKey: 'test-api-key',
+      ip: '192.168.1.100',
+      https: false,
+      verbose: false,
+      host: 'https://tunnel.example.com',
+    };
+
+    const mockClient = {
+      // Mock client properties/methods as needed
+    };
+
+    const { HomeyScriptClient } = await import('./client');
+    vi.mocked(HomeyScriptClient).mockReturnValue(mockClient as never);
+
+    const result = await getClient(config);
+
+    expect(HomeyScriptClient).toHaveBeenCalledWith({
+      host: 'https://tunnel.example.com',
+      token: 'test-api-key',
+    });
+    expect(result).toBe(mockClient);
+  });
+
+  it('should create client with host URL and add http prefix when host does not start with http', async () => {
+    const config = {
+      apiKey: 'test-api-key',
+      ip: '192.168.1.100',
+      https: false,
+      verbose: false,
+      host: 'tunnel.example.com',
+    };
+
+    const mockClient = {
+      // Mock client properties/methods as needed
+    };
+
+    const { HomeyScriptClient } = await import('./client');
+    vi.mocked(HomeyScriptClient).mockReturnValue(mockClient as never);
+
+    const result = await getClient(config);
+
+    expect(HomeyScriptClient).toHaveBeenCalledWith({
+      host: 'http://tunnel.example.com',
+      token: 'test-api-key',
+    });
+    expect(result).toBe(mockClient);
+  });
+
+  it('should throw error when apiKey is missing and no host provided', async () => {
     const config = {
       apiKey: '',
       ip: '192.168.1.100',
@@ -67,11 +117,11 @@ describe('getClient', () => {
     };
 
     await expect(getClient(config)).rejects.toThrow(
-      'API key and IP address are required. Use --apiKey and --ip flags or configure them in .hsk.json'
+      'API key and IP address are required when not using --host flag. Use --apiKey and --ip flags or configure them in .hsk.json'
     );
   });
 
-  it('should throw error when ip is missing', async () => {
+  it('should throw error when ip is missing and no host provided', async () => {
     const config = {
       apiKey: 'test-api-key',
       ip: '',
@@ -80,11 +130,11 @@ describe('getClient', () => {
     };
 
     await expect(getClient(config)).rejects.toThrow(
-      'API key and IP address are required. Use --apiKey and --ip flags or configure them in .hsk.json'
+      'API key and IP address are required when not using --host flag. Use --apiKey and --ip flags or configure them in .hsk.json'
     );
   });
 
-  it('should throw error when both apiKey and ip are missing', async () => {
+  it('should throw error when both apiKey and ip are missing and no host provided', async () => {
     const config = {
       apiKey: '',
       ip: '',
@@ -93,7 +143,46 @@ describe('getClient', () => {
     };
 
     await expect(getClient(config)).rejects.toThrow(
-      'API key and IP address are required. Use --apiKey and --ip flags or configure them in .hsk.json'
+      'API key and IP address are required when not using --host flag. Use --apiKey and --ip flags or configure them in .hsk.json'
     );
+  });
+
+  it('should throw error when host is provided but apiKey is missing', async () => {
+    const config = {
+      apiKey: '',
+      ip: '192.168.1.100',
+      https: false,
+      verbose: false,
+      host: 'https://tunnel.example.com',
+    };
+
+    await expect(getClient(config)).rejects.toThrow(
+      'API key is required when using --host flag. Use --apiKey flag or configure it in .hsk.json'
+    );
+  });
+
+  it('should work when host is provided and apiKey is present (ip can be empty)', async () => {
+    const config = {
+      apiKey: 'test-api-key',
+      ip: '',
+      https: false,
+      verbose: false,
+      host: 'https://tunnel.example.com',
+    };
+
+    const mockClient = {
+      // Mock client properties/methods as needed
+    };
+
+    const { HomeyScriptClient } = await import('./client');
+    vi.mocked(HomeyScriptClient).mockReturnValue(mockClient as never);
+
+    const result = await getClient(config);
+
+    expect(HomeyScriptClient).toHaveBeenCalledWith({
+      host: 'https://tunnel.example.com',
+      token: 'test-api-key',
+    });
+    expect(result).toBe(mockClient);
   });
 });

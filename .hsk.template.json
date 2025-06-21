@@ -1,5 +1,6 @@
 {
   "https": false,
   "ip": "<your-ip>",
-  "apiKey": "<your-api-key>"
+  "apiKey": "<your-api-key>",
+  "host": "<your-host-url>"
 }

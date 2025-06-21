@@ -7,9 +7,11 @@ export type CLIFlags = {
   version: boolean;
   https: boolean;
   verbose: boolean;
+  skipConfirmation?: boolean;
   dir?: string;
   apiKey?: string;
   ip?: string;
+  host?: string;
 };
 
 export interface CommandEvent {

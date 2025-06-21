@@ -39,3 +39,6 @@ yarn.lock
 .eslintcache
 
 .hsk.json
+
+dist/
+dist
