@@ -1,6 +1,6 @@
 {
   "name": "homeyscriptkit",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Extend your Homey's capabilities with custom HomeyScript automation scripts",
   "type": "module",
   "main": "index.js",
@@ -64,8 +64,7 @@
     "ora": "8.2.0",
     "pupa": "^3.1.0",
     "react": "19.1.0",
-    "tsx": "4.20.3",
-    "zod": "3.25.64"
+    "tsx": "4.20.3"
   },
   "devDependencies": {
     "@eslint/js": "9.29.0",

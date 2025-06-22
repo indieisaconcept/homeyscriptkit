@@ -1,5 +1,3 @@
-import { z } from 'zod';
-
 /**
  * Regex pattern for HSK URL validation and parsing
  */
@@ -7,51 +5,62 @@ const HSK_URL_PATTERN =
   /^hsk:\/\/(?<script>[^/]+)\/(?<command>[^/?]+)(?:\/(?<pathResult>[^/?]+))?(?:\?(?<query>.+))?$/;
 
 /**
- * Combined Zod schema that validates HSK URL format and transforms it into a Config object
+ * Configuration type for HSK URL parsing
  */
-const ConfigSchema = z
-  .string()
-  .regex(
-    HSK_URL_PATTERN,
-    'Invalid HSK URL format. Expected: hsk://script/command[/result]?params'
-  )
-  .transform((configString) => {
-    const match = configString.match(HSK_URL_PATTERN);
-
-    const {
-      script = '',
-      command = '',
-      pathResult,
-      query,
-    } = match?.groups ?? {};
-
-    // Generate tag name based on the URL structure
-    const tagName = pathResult
-      ? `${script}.${pathResult}.Result`
-      : command
-        ? `${script}.${command}.Result`
-        : `${script}.Result`;
-
-    return {
-      script,
-      command,
-      result: tagName,
-      params: query ? Object.fromEntries(new URLSearchParams(query)) : {},
-    };
-  })
-  .pipe(
-    z.object({
-      script: z.string().min(1, 'Script name cannot be empty'),
-      command: z.string().min(1, 'Command name cannot be empty'),
-      result: z.string(),
-      params: z.record(z.string()).default({}),
-    })
-  );
+export interface Config {
+  script: string;
+  command: string;
+  result: string;
+  params: Record<string, string>;
+}
 
 /**
- * Configuration type inferred from Zod schema
+ * Validates and parses an HSK URL string into a Config object
  */
-export type Config = z.infer<typeof ConfigSchema>;
+function parseHSKConfig(configString: string): Config | null {
+  const match = configString.match(HSK_URL_PATTERN);
+
+  if (!match) {
+    throw new Error(
+      'Invalid HSK URL format. Expected: hsk://script/command[/result]?params'
+    );
+  }
+
+  const { script = '', command = '', pathResult, query } = match.groups ?? {};
+
+  // Validate required fields
+  if (!script?.trim()) {
+    throw new Error('Script name cannot be empty');
+  }
+
+  if (!command?.trim()) {
+    throw new Error('Command name cannot be empty');
+  }
+
+  // Generate tag name based on the URL structure
+  const tagName = pathResult
+    ? `${script}.${pathResult}.Result`
+    : command
+      ? `${script}.${command}.Result`
+      : `${script}.Result`;
+
+  // Parse query parameters
+  let params: Record<string, string> = {};
+  if (query) {
+    try {
+      params = Object.fromEntries(new URLSearchParams(query));
+    } catch (_error) {
+      throw new Error(`Invalid query parameters: ${query}`);
+    }
+  }
+
+  return {
+    script: script.trim(),
+    command: command.trim(),
+    result: tagName,
+    params,
+  };
+}
 
 /**
  * Extracts and parses configuration from a HomeyScriptKit URL string.
@@ -67,7 +76,7 @@ export const getConfiguration = (config?: string): Config | null => {
   }
 
   try {
-    return ConfigSchema.parse(config);
+    return parseHSKConfig(config);
   } catch (error) {
     console.error(
       error instanceof Error
